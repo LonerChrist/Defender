@@ -529,7 +529,25 @@ def api_check_email():
     if not email:
         return jsonify({'error': 'Email is required'}), 400
 
-    result = check_email_breach(email)
+    demo_emails = {
+        'Margarita2008@mail.ru': [
+            {'name': 'LinkedIn', 'date': '2012'},
+            {'name': 'Adobe', 'date': '2013'}
+        ],
+        'Lemontaste@mail.ru': [
+            {'name': 'Dropbox', 'date': '2016'}
+        ],
+        'Myinternet@mail.ru': [
+            {'name': 'Facebook', 'date': '2020'},
+            {'name': 'Twitter', 'date': '2018'},
+            {'name': 'MySpace', 'date': '2016'}
+        ]
+    }
+
+    if email in demo_emails:
+        result = demo_emails[email]
+    else:
+        result = check_email_breach(email)
 
     create_scan(
         user_id=session['user_id'],
@@ -594,6 +612,7 @@ def api_check_password_offline():
 @require_api_key
 def api_scan_ports():
     """API сканирования сетевых портов"""
+
     try:
         data = request.get_json()
         host = data.get('host', 'localhost')
@@ -626,6 +645,67 @@ def api_generate_pdf_report():
     """API генерации PDF отчёта"""
     try:
         data = request.get_json()
+
+        if data.get('demo'):
+            audit_data = {
+                'target': 'demo-company.local',
+                'generated_at': datetime.now().strftime('%d.%m.%Y %H:%M:%S'),
+
+                'email_check': {
+                    'email': 'test@example.com',
+                    'breaches_count': 3,
+                    'breaches': [
+                        {'name': 'LinkedIn', 'date': '2012'},
+                        {'name': 'Adobe', 'date': '2013'},
+                        {'name': 'Dropbox', 'date': '2016'}
+                    ]
+                },
+
+                'password_analysis': {
+                    'score': 35,
+                    'strength': 'weak',
+                    'suggestions': ['Используйте пароль длиной не менее 12 символов']
+                },
+
+                'port_scan': {
+                    'host': '192.168.1.1',
+                    'open_ports': [
+                        {'port': 21, 'service': 'FTP', 'state': 'open'},
+                        {'port': 3389, 'service': 'RDP', 'state': 'open'},
+                        {'port': 445, 'service': 'SMB', 'state': 'open'}
+                    ],
+                    'vulnerabilities': [
+                        {'port': 21, 'service': 'FTP', 'severity': 'high', 'description': 'FTP без шифрования'},
+                        {'port': 3389, 'service': 'RDP', 'severity': 'critical', 'description': 'RDP доступен извне'},
+                        {'port': 445, 'service': 'SMB', 'severity': 'high', 'description': 'SMB открыт'}
+                    ]
+                }
+            }
+
+            findings = _build_findings(audit_data)
+            recommendations = _build_recommendations(findings)
+            insurance_profile = _build_insurance_profile(audit_data, findings)
+
+            audit_data['findings'] = findings
+            audit_data['recommendations'] = recommendations
+            audit_data['insurance_profile'] = insurance_profile
+
+            # расчёт метрик
+            critical_count = len([f for f in findings if f.get('severity') == 'critical'])
+            high_count = len([f for f in findings if f.get('severity') == 'high'])
+            medium_count = len([f for f in findings if f.get('severity') == 'medium'])
+
+            audit_data['critical_count'] = critical_count
+            audit_data['warning_count'] = high_count + medium_count
+            audit_data['overall_score'] = max(0, 100 - critical_count * 30 - high_count * 20 - medium_count * 10)
+
+            session_id = f"demo_{datetime.now().timestamp()}"
+            session_data[session_id] = audit_data
+
+            return jsonify({
+                'message': 'Demo отчёт создан',
+                'session_id': session_id
+            })
 
         audit_data = {
             'target': data.get('target', 'Информационная система ИП'),
