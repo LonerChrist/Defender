@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CyberShield IE — Аудит киберрисков для ИП</title>
+    <link rel="icon" href="image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🛡️</text></svg>">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+</head>
+<body>
+    <div class="app-shell">
+
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <div class="brand-block">
+                    <div class="brand-mark">🛡️</div>
+                    <div>
+                        <div class="brand-name">CyberShield IE</div>
+                        <div class="brand-caption">Сканер безопасности</div>
+                    </div>
+                </div>
+            </div>
+
+            <nav class="sidebar-nav">
+                <a href="#dashboard" class="nav-link active">Обзор</a>
+                <a href="#licenseSection" class="nav-link">Лицензия</a>
+                <a href="#emailSection" class="nav-link">Email</a>
+                <a href="#passwordSection" class="nav-link">Пароль</a>
+                <a href="#portsSection" class="nav-link">Порты</a>
+                <a href="#reportSection" class="nav-link">Отчёт</a>
+            </nav>
+
+            <div class="card-like">
+                <div class="sidebar-status-title">СТАТУС СИСТЕМЫ</div>
+                <div class="mini-status-row">
+                    <span>API</span>
+                    <span class="status-chip ok">Доступен</span>
+                </div>
+                <div class="mini-status-row">
+                    <span>Режим</span>
+                    <span class="status-chip neutral">Локальный</span>
+                </div>
+                <div class="mini-status-row">
+                    <span>Последний отчёт</span>
+                    <span>—</span>
+                </div>
+            </div>
+        </aside>
+
+
+        <div class="content-wrap">
+
+            <div class="topbar">
+                <div>
+                    <h1 class="page-title">Сканирование инфраструктуры</h1>
+                    <div class="page-subtitle">Простой интерфейс для базового аудита безопасности</div>
+                </div>
+                <div class="user-info">
+                    <div class="license-status">
+                        <span class="status-dot"></span>
+                        <span>Лицензия: не активирована</span>
+                    </div>
+                    <div class="panel-icon">Панель оператора</div>
+                </div>
+            </div>
+
+
+            <div class="main-content">
+
+                <div class="hero-panel">
+                    <div>
+                        <div class="hero-badge">Панель оператора</div>
+                        <h1>Проверяйте утечки, пароли, порты и формируйте понятный отчёт</h1>
+                        <p>Выполняйте базовые проверки безопасности и формируйте сводный отчёт по результатам аудита.</p>
+                        <div class="hero-actions" style="margin-top: 20px;">
+                            <button class="btn btn-primary" onclick="document.getElementById('emailSection').scrollIntoView({behavior: 'smooth'})">Начать проверку</button>
+                            <button class="btn btn-secondary" onclick="document.getElementById('reportSection').scrollIntoView({behavior: 'smooth'})">Перейти к отчёту</button>
+                        </div>
+                    </div>
+                </div>
+
+
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-label">Общий риск</div>
+                        <div class="stat-value">Не оценён</div>
+                        <div class="stat-hint">Запустите хотя бы одну проверку</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-label">Проверки</div>
+                        <div class="stat-value">0</div>
+                        <div class="stat-hint">Выполнено модулей</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-label">Открытые порты</div>
+                        <div class="stat-value">0</div>
+                        <div class="stat-hint">По последнему сканированию</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-label">Найдено проблем</div>
+                        <div class="stat-value">0</div>
+                        <div class="stat-hint">Утечки и уязвимости</div>
+                    </div>
+                </div>
+
+
+                <section class="panel panel-accent" id="licenseSection">
+
+                </section>
+
+                <section class="panel panel-accent" id="emailSection">
+
+                </section>
+
+                <section class="panel panel-accent" id="passwordSection">
+
+                </section>
+
+                <section class="panel panel-accent" id="portsSection">
+
+                </section>
+
+                <section class="panel panel-success" id="reportSection">
+
+                </section>
+
+                <section class="panel">
+
+                </section>
+            </div>
+
+
+
+            <footer class="main-footer">
+                <div class="footer-content">
+                    <p>© 2026 CyberShield IE. Все права защищены.</p>
+                    <div class="footer-links">
+                        <a href="https://nvd.nist.gov" target="_blank">NVD CVE Database</a>
+                        <a href="https://owasp.org" target="_blank">OWASP Top 10</a>
+                        <a href="https://haveibeenpwned.com" target="_blank">Have I Been Pwned</a>
+                    </div>
+                </div>
+            </footer>
+        </div>
+
+    </div>
+
+
+    <script>
+        // JavaScript функции
+    </script>
+</body>
+</html>

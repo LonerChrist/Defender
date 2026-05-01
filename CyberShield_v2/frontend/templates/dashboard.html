@@ -1,0 +1,1042 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CyberShield IE — Аудит киберрисков для ИП</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🛡️</text></svg>">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: #F5F6FA;
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* Боковая панель */
+        .sidebar {
+            width: 260px;
+            background: linear-gradient(180deg, #1A252F 0%, #2C3E50 100%);
+            color: white;
+            padding: 20px 0;
+            position: fixed;
+            height: 100vh;
+            overflow-y: auto;
+            left: 0;
+            top: 0;
+        }
+
+        .sidebar-header {
+            padding: 0 20px 20px;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            margin-bottom: 20px;
+        }
+
+        .sidebar-brand {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+
+        .sidebar-brand-icon {
+            font-size: 24px;
+        }
+
+        .sidebar-subtitle {
+            font-size: 12px;
+            color: #95A5A6;
+        }
+
+        .sidebar-nav {
+            list-style: none;
+            padding: 0 10px;
+        }
+
+        .sidebar-nav li {
+            margin-bottom: 5px;
+        }
+
+        .sidebar-nav a {
+            display: block;
+            padding: 12px 15px;
+            color: #BDC3C7;
+            text-decoration: none;
+            border-radius: 6px;
+            transition: all 0.2s;
+            font-size: 14px;
+        }
+
+        .sidebar-nav a:hover,
+        .sidebar-nav a.active {
+            background: rgba(255,255,255,0.1);
+            color: white;
+        }
+
+        .sidebar-nav a.active {
+            background: #3498DB;
+        }
+
+        .sidebar-status {
+            margin: 30px 10px 0;
+            padding: 15px;
+            background: rgba(255,255,255,0.05);
+            border-radius: 8px;
+            font-size: 12px;
+        }
+
+        .sidebar-status-title {
+            font-size: 11px;
+            color: #95A5A6;
+            text-transform: uppercase;
+            margin-bottom: 10px;
+        }
+
+        .status-item {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+        }
+
+        .status-label {
+            color: #BDC3C7;
+        }
+
+        .status-value {
+            color: #2ECC71;
+            font-weight: 500;
+        }
+
+        .status-value.local {
+            color: #F39C12;
+        }
+
+        /* Основной контент */
+        .main-content {
+            margin-left: 260px;
+            flex: 1;
+            padding: 30px;
+        }
+
+        .top-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            background: white;
+            padding: 20px 30px;
+            border-radius: 12px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        }
+
+        .top-bar h1 {
+            font-size: 24px;
+            color: #2C3E50;
+        }
+
+        .top-bar-subtitle {
+            color: #7F8C8D;
+            font-size: 14px;
+            margin-top: 5px;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .license-badge {
+            background: #E8F8F5;
+            color: #27AE60;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        .btn-logout {
+            background: #E74C3C;
+            color: white;
+            padding: 8px 16px;
+            border-radius: 6px;
+            text-decoration: none;
+            font-size: 13px;
+            transition: background 0.2s;
+        }
+
+        .btn-logout:hover {
+            background: #C0392B;
+        }
+
+        /* Карточки */
+        .card {
+            background: white;
+            border-radius: 12px;
+            padding: 25px;
+            margin-bottom: 25px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        }
+
+        .card h2 {
+            font-size: 18px;
+            color: #2C3E50;
+            margin-bottom: 10px;
+        }
+
+        .card-description {
+            color: #7F8C8D;
+            font-size: 14px;
+            margin-bottom: 20px;
+        }
+
+        .input-group {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .form-input {
+            flex: 1;
+            padding: 12px 16px;
+            border: 2px solid #E0E0E0;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: border-color 0.2s;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: #3498DB;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-primary {
+            background: #3498DB;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #2980B9;
+        }
+
+        .btn-secondary {
+            background: #95A5A6;
+            color: white;
+        }
+
+        .result-message {
+            padding: 12px 16px;
+            border-radius: 8px;
+            margin: 10px 0;
+            font-size: 14px;
+            display: none;
+        }
+
+        .result-message.show {
+            display: block;
+        }
+
+        .result-message.success {
+            background: #E8F5E9;
+            color: #27AE60;
+        }
+
+        .result-message.warning {
+            background: #FFF3E0;
+            color: #F39C12;
+        }
+
+        .result-message.error {
+            background: #FFE5E5;
+            color: #E74C3C;
+        }
+
+        .result-message.info {
+            background: #E3F2FD;
+            color: #3498DB;
+        }
+
+        /* Детали пароля */
+        .password-details {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .detail-card {
+            background: #F8F9F9;
+            padding: 15px;
+            border-radius: 8px;
+        }
+
+        .detail-label {
+            font-size: 12px;
+            color: #7F8C8D;
+            margin-bottom: 5px;
+        }
+
+        .detail-value {
+            font-size: 16px;
+            color: #2C3E50;
+            font-weight: 600;
+        }
+
+        /* Таблицы */
+        .table-container {
+            overflow-x: auto;
+            margin: 15px 0;
+        }
+
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 14px;
+        }
+
+        .data-table th,
+        .data-table td {
+            padding: 12px 15px;
+            text-align: left;
+            border-bottom: 1px solid #E0E0E0;
+        }
+
+        .data-table th {
+            background: #3498DB;
+            color: white;
+            font-weight: 600;
+        }
+
+        .data-table tr:hover {
+            background: #F8F9F9;
+        }
+
+        /* Переключатель режима */
+        .mode-toggle {
+            margin: 15px 0;
+            padding: 12px;
+            background: #F8F9F9;
+            border-radius: 8px;
+        }
+
+        .toggle-label {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            cursor: pointer;
+            font-size: 14px;
+            color: #2C3E50;
+        }
+
+        /* Опции отчёта */
+        .report-options {
+            margin: 15px 0;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .option-label {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 14px;
+            color: #2C3E50;
+            cursor: pointer;
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        /* Уязвимости */
+        .vulnerabilities-list {
+            margin-top: 20px;
+            padding: 15px;
+            background: #FFF5F5;
+            border-radius: 8px;
+            border-left: 4px solid #E74C3C;
+            display: none;
+        }
+
+        .vulnerabilities-list h4 {
+            margin: 0 0 15px 0;
+            color: #C0392B;
+        }
+
+        .vuln-item {
+            padding: 12px;
+            background: white;
+            border-radius: 6px;
+            margin: 10px 0;
+            border: 1px solid #E0E0E0;
+        }
+
+        .vuln-title {
+            font-weight: 600;
+            color: #2C3E50;
+            margin-bottom: 5px;
+        }
+
+        .vuln-desc {
+            color: #7F8C8D;
+            font-size: 13px;
+            margin-bottom: 8px;
+        }
+
+        /* Список утечек */
+        .breaches-list {
+            margin-top: 15px;
+        }
+
+        .breach-item {
+            padding: 10px 15px;
+            background: #F8F9F9;
+            border-radius: 6px;
+            margin: 8px 0;
+            border-left: 3px solid #E74C3C;
+        }
+
+        .breach-name {
+            font-weight: 600;
+            color: #2C3E50;
+        }
+
+        .breach-date {
+            color: #7F8C8D;
+            font-size: 13px;
+            margin-left: 10px;
+        }
+
+
+
+        /* Адаптивность */
+        @media (max-width: 768px) {
+            .sidebar {
+                width: 100%;
+                height: auto;
+                position: relative;
+            }
+        @media (max-width: 768px) {
+        .main-footer {
+        margin-left: 0;
+        }
+
+        .footer-content {
+        flex-direction: column;
+        text-align: center;
+        }
+
+        .footer-links {
+        flex-direction: column;
+        gap: 10px;
+        }
+}
+
+            .main-content,
+            .main-footer {
+                margin-left: 0;
+            }
+
+            body {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <aside class="sidebar">
+        <div class="sidebar-header">
+            <div class="sidebar-brand">
+                <span class="sidebar-brand-icon">🛡️</span>
+                <span>CyberShield IE</span>
+            </div>
+            <div class="sidebar-subtitle">Сканер безопасности</div>
+        </div>
+
+        <ul class="sidebar-nav">
+            <li><a href="#dashboard" class="active">Обзор</a></li>
+            <li><a href="#licenseSection">Лицензия</a></li>
+            <li><a href="#emailSection">Email</a></li>
+            <li><a href="#passwordSection">Пароль</a></li>
+            <li><a href="#portsSection">Порты</a></li>
+            <li><a href="#reportSection">Отчёт</a></li>
+        </ul>
+
+        <div class="sidebar-status">
+            <div class="sidebar-status-title">Статус системы</div>
+            <div class="mini-status-row">
+                <span>API</span>
+                <span class="status-chip ok">Доступен</span>
+            </div>
+            <div class="mini-status-row">
+                <span>Режим</span>
+                <span class="status-chip neutral">Локальный</span>
+            </div>
+            <div class="mini-status-row">
+                <span>Последний отчёт</span>
+                <span id="lastReportText">—</span>
+            </div>
+        </div>
+    </aside>
+
+
+    <div class="main-content">
+
+        <div class="top-bar">
+            <div>
+                <h1>Сканирование инфраструктуры</h1>
+                <div class="top-bar-subtitle">Простой интерфейс для базового аудита безопасности</div>
+            </div>
+            <div class="user-info">
+                <span>{{ user.email }}</span>
+                {% if license %}
+                <span class="license-badge">✓ Лицензия активна</span>
+                {% else %}
+                <span class="license-badge" style="background: #FFF3E0; color: #F39C12;">Лицензия не активирована</span>
+                {% endif %}
+                <a href="/logout" class="btn-logout">Выход</a>
+            </div>
+        </div>
+
+        <section class="stats-grid">
+            <article class="stat-card">
+                <div class="stat-label">Общий риск</div>
+                <div class="stat-value" id="overallRiskValue">Не оценён</div>
+                <div class="stat-hint" id="overallRiskHint">Запустите хотя бы одну проверку</div>
+            </article>
+            <article class="stat-card">
+                <div class="stat-label">Проверки</div>
+                <div class="stat-value" id="checksCount">0</div>
+                <div class="stat-hint">Выполнено модулей</div>
+            </article>
+            <article class="stat-card">
+                <div class="stat-label">Открытые порты</div>
+                <div class="stat-value" id="openPortsCount">0</div>
+                <div class="stat-hint">По последнему сканированию</div>
+            </article>
+            <article class="stat-card">
+                <div class="stat-label">Найдено проблем</div>
+                <div class="stat-value" id="issuesCount">0</div>
+                <div class="stat-hint">Утечки и уязвимости</div>
+            </article>
+        </section>
+
+        <section class="card" id="licenseSection">
+            <h2>Активация лицензии</h2>
+            <p class="card-description">Откройте доступ ко всем функциям системы.</p>
+            <div class="input-group">
+                <input type="text" id="licenseKey" placeholder="XXXX-XXXX-XXXX-XXXX" class="form-input">
+                <button onclick="activateLicense()" class="btn btn-primary">Активировать</button>
+            </div>
+            <div id="licenseResult" class="result-message"></div>
+        </section>
+
+        <section class="card" id="emailSection">
+            <h2>Проверка email на утечки</h2>
+            <p class="card-description">Проверьте адрес в известных базах компрометации.</p>
+            <div class="input-group">
+                <input type="email" id="emailInput" placeholder="user@example.com" class="form-input">
+                <button onclick="checkEmail()" class="btn btn-primary">Проверить</button>
+            </div>
+            <div id="emailResult" class="result-message"></div>
+            <div id="emailBreachesList" class="breaches-list"></div>
+        </section>
+
+        <section class="card" id="passwordSection">
+            <h2>Анализ надёжности пароля</h2>
+            <p class="card-description">Оценка сложности и проверка на участие в утечках.</p>
+
+            <div class="mode-toggle">
+                <label class="toggle-label">
+                    <input type="checkbox" id="offlineMode" onchange="togglePasswordMode()">
+                    <span>Оффлайн-режим без отправки во внешние сервисы</span>
+                </label>
+            </div>
+
+            <div class="input-group">
+                <input type="password" id="passwordInput" placeholder="Пароль" class="form-input">
+                <button onclick="checkPassword()" class="btn btn-primary">Оценить</button>
+            </div>
+            <div id="passwordResult" class="result-message"></div>
+
+            <div id="passwordDetails" class="password-details" style="display: none;">
+                <div class="detail-card">
+                    <div class="detail-label">Длина</div>
+                    <div class="detail-value" id="pwdLength">-</div>
+                </div>
+                <div class="detail-card">
+                    <div class="detail-label">Энтропия</div>
+                    <div class="detail-value" id="pwdEntropy">-</div>
+                </div>
+                <div class="detail-card">
+                    <div class="detail-label">Время взлома</div>
+                    <div class="detail-value" id="pwdCrackTime">-</div>
+                </div>
+                <div class="detail-card">
+                    <div class="detail-label">Утечки</div>
+                    <div class="detail-value" id="pwdBreaches">-</div>
+                </div>
+            </div>
+        </section>
+
+        <section class="card" id="portsSection">
+            <h2>Сканирование сетевых портов</h2>
+            <p class="card-description">Поиск открытых портов и уязвимых сервисов.</p>
+            <div class="input-group">
+                <input type="text" id="hostInput" placeholder="localhost" value="localhost" class="form-input">
+                <button onclick="scanPorts()" class="btn btn-primary">Сканировать</button>
+            </div>
+            <div id="portResult" class="result-message"></div>
+
+            <div id="portsTable" class="table-container" style="display: none;">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Порт</th>
+                            <th>Сервис</th>
+                            <th>Статус</th>
+                            <th>Риск</th>
+                        </tr>
+                    </thead>
+                    <tbody id="portsTableBody"></tbody>
+                </table>
+            </div>
+
+            <div id="vulnerabilitiesList" class="vulnerabilities-list">
+                <h4>Выявленные уязвимости:</h4>
+                <div id="vulnsContent"></div>
+            </div>
+        </section>
+
+        <section class="card" id="reportSection">
+            <h2>Генерация отчёта</h2>
+            <p class="card-description">HTML для просмотра и PDF для скачивания.</p>
+
+            <div class="input-group">
+                <input type="text" id="reportTarget" placeholder="Название системы" class="form-input">
+            </div>
+
+            <div class="report-options">
+                <label class="option-label">
+                    <input type="checkbox" id="includeEmail" checked> Включить проверку email
+                </label>
+                <label class="option-label">
+                    <input type="checkbox" id="includePassword" checked> Включить анализ пароля
+                </label>
+                <label class="option-label">
+                    <input type="checkbox" id="includePorts" checked> Включить сканирование портов
+                </label>
+            </div>
+
+            <div class="btn-group">
+                <button onclick="generateReport('html')" class="btn btn-secondary">Просмотреть HTML</button>
+                <button onclick="generateReport('pdf')" class="btn btn-primary">Скачать PDF</button>
+            </div>
+
+            <div id="reportResult" class="result-message"></div>
+        </section>
+
+
+        <section class="card">
+            <h2>💡 Быстрые рекомендации</h2>
+            <ul style="list-style: none; padding: 0;">
+                <li style="padding: 8px 0; border-bottom: 1px solid #E0E0E0;">✓ Используйте пароли длиной от 12 символов с буквами, цифрами и спецсимволами</li>
+                <li style="padding: 8px 0; border-bottom: 1px solid #E0E0E0;">✓ Включите двухфакторную аутентификацию для почты и важных сервисов</li>
+                <li style="padding: 8px 0; border-bottom: 1px solid #E0E0E0;">✓ Оставляйте открытыми только те порты, которые реально нужны в работе</li>
+                <li style="padding: 8px 0; border-bottom: 1px solid #E0E0E0;">✓ Периодически обновляйте ОС, веб-сервер и прикладное ПО</li>
+                <li style="padding: 8px 0;">✓ Делайте резервные копии и проверяйте, что они восстанавливаются</li>
+            </ul>
+        </section>
+    </div>
+
+
+    <footer class="main-footer">
+        <div class="footer-content">
+            <p>© 2026 CyberShield IE. Все права защищены.</p>
+            <div class="footer-links">
+                <a href="https://nvd.nist.gov" target="_blank">NVD CVE Database</a>
+                <a href="https://owasp.org" target="_blank">OWASP Top 10</a>
+                <a href="https://haveibeenpwned.com" target="_blank">Have I Been Pwned</a>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        let lastEmailResult = null;
+        let lastPasswordResult = null;
+        let lastPortsResult = null;
+        const API_KEY = 'default_key_for_dev';
+        const API_BASE = '';
+
+        document.querySelectorAll('.sidebar-nav a').forEach(link => {
+            link.addEventListener('click', function(e) {
+                e.preventDefault();
+                const targetId = this.getAttribute('href').substring(1);
+                const targetSection = document.getElementById(targetId);
+                if (targetSection) {
+                    targetSection.scrollIntoView({ behavior: 'smooth' });
+                }
+
+                document.querySelectorAll('.sidebar-nav a').forEach(l => l.classList.remove('active'));
+                this.classList.add('active');
+            });
+        });
+
+        // Активация лицензии
+        async function activateLicense() {
+            const key = document.getElementById('licenseKey').value.trim();
+            const resultDiv = document.getElementById('licenseResult');
+
+            if (!key) {
+                showResult(resultDiv, 'Введите лицензионный ключ', 'warning');
+                return;
+            }
+
+            try {
+                const response = await fetch('/api/license/activate', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-API-Key': API_KEY
+                    },
+                    body: JSON.stringify({ key: key })
+                });
+
+                const data = await response.json();
+
+                if (response.ok && data.success) {
+                    showResult(resultDiv, 'Лицензия активирована!', 'success');
+                    setTimeout(() => location.reload(), 1500);
+                } else {
+                    showResult(resultDiv, `${data.error || 'Ошибка активации'}`, 'error');
+                }
+            } catch (error) {
+                showResult(resultDiv, `Ошибка соединения: ${error.message}`, 'error');
+            }
+        }
+
+        // Проверка email
+        async function checkEmail() {
+            const email = document.getElementById('emailInput').value.trim();
+            const resultDiv = document.getElementById('emailResult');
+            const breachesList = document.getElementById('emailBreachesList');
+
+            if (!email) {
+                showResult(resultDiv, 'Введите email для проверки', 'warning');
+                return;
+            }
+
+            showResult(resultDiv, 'Проверка...', 'info');
+            if (breachesList) breachesList.innerHTML = '';
+
+            try {
+                const response = await fetch(`${API_BASE}/api/check/email`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-API-Key': API_KEY
+                    },
+                    body: JSON.stringify({ email: email })
+                });
+
+                const data = await response.json();
+                lastEmailResult = data;
+
+                if (response.ok) {
+                    const breaches = data.breaches || [];
+                    const count = breaches.length;
+
+                    if (count === 0) {
+                        showResult(resultDiv, 'Утечек не обнаружено', 'success');
+                    } else {
+                        showResult(resultDiv, `Найдено ${count} утечек`, 'warning');
+
+                        if (breachesList) {
+                            let html = '';
+                            breaches.forEach(breach => {
+                                html += `
+                                    <div class="breach-item">
+                                        <span class="breach-name">${breach.name || 'Unknown'}</span>
+                                        <span class="breach-date">${breach.date || 'N/A'}</span>
+                                    </div>
+                                `;
+                            });
+                            breachesList.innerHTML = html;
+                        }
+                    }
+                } else {
+                    showResult(resultDiv, `Ошибка: ${data.error || 'Неизвестная ошибка'}`, 'error');
+                }
+            } catch (error) {
+                showResult(resultDiv, `Ошибка соединения: ${error.message}`, 'error');
+            }
+        }
+
+        // Переключение режима пароля
+        function togglePasswordMode() {
+            const offline = document.getElementById('offlineMode').checked;
+            const passwordInput = document.getElementById('passwordInput');
+
+            if (offline) {
+                passwordInput.placeholder = 'Введите пароль (оффлайн-анализ)';
+            } else {
+                passwordInput.placeholder = 'Введите пароль (с проверкой в базах утечек)';
+            }
+        }
+
+        async function checkPassword() {
+            const password = document.getElementById('passwordInput').value;
+            const resultDiv = document.getElementById('passwordResult');
+            const detailsDiv = document.getElementById('passwordDetails');
+            const offline = document.getElementById('offlineMode').checked;
+
+            if (!password) {
+                showResult(resultDiv, 'Введите пароль для проверки', 'warning');
+                return;
+            }
+
+            if (password.length < 6) {
+                showResult(resultDiv, 'Пароль слишком короткий (минимум 6 символов)', 'error');
+                return;
+            }
+
+            showResult(resultDiv, 'Анализ...', 'info');
+            if (detailsDiv) detailsDiv.style.display = 'none';
+
+            try {
+                const endpoint = offline
+                    ? `${API_BASE}/api/check/password/offline`
+                    : `${API_BASE}/api/check/password`;
+
+                const response = await fetch(endpoint, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-API-Key': API_KEY
+                    },
+                    body: JSON.stringify({ password: password })
+                });
+
+                const data = await response.json();
+                lastPasswordResult = data;
+
+                if (response.ok) {
+                    const strength = data.strength || 'unknown';
+                    const score = data.score || 0;
+
+                    let statusClass = 'info';
+                    let statusText = 'Анализ завершён';
+
+                    if (['very_strong', 'strong'].includes(strength)) {
+                        statusClass = 'success';
+                        statusText = 'Надёжный пароль';
+                    } else if (strength === 'medium') {
+                        statusClass = 'warning';
+                        statusText = 'Средний уровень';
+                    } else {
+                        statusClass = 'error';
+                        statusText = 'Слабый пароль';
+                    }
+
+                    showResult(resultDiv, `${statusText} (${score}/100)`, statusClass);
+
+                    // Безопасное обновление деталей
+                    if (detailsDiv) {
+                        const pwdLength = document.getElementById('pwdLength');
+                        const pwdEntropy = document.getElementById('pwdEntropy');
+                        const pwdCrackTime = document.getElementById('pwdCrackTime');
+                        const pwdBreaches = document.getElementById('pwdBreaches');
+
+                        if (pwdLength) pwdLength.textContent = `${data.length || 0} символов`;
+                        if (pwdEntropy) pwdEntropy.textContent = `${(data.entropy || 0).toFixed(1)} бит`;
+                        if (pwdCrackTime) pwdCrackTime.textContent = data.crack_time || '-';
+                        if (pwdBreaches) {
+                            pwdBreaches.textContent = data.breach_count !== undefined
+                                ? (data.breach_count > 0 ? `Да (${data.breach_count})` : 'Нет')
+                                : '-';
+                        }
+
+                        detailsDiv.style.display = 'grid';
+                    }
+
+                } else {
+                    showResult(resultDiv, `Ошибка: ${data.error || 'Неизвестная ошибка'}`, 'error');
+                }
+            } catch (error) {
+                showResult(resultDiv, `Ошибка соединения: ${error.message}`, 'error');
+            }
+        }
+
+        // Сканирование портов
+        async function scanPorts() {
+            const host = document.getElementById('hostInput').value.trim() || 'localhost';
+            const resultDiv = document.getElementById('portResult');
+            const tableContainer = document.getElementById('portsTable');
+            const tableBody = document.getElementById('portsTableBody');
+            const vulnsList = document.getElementById('vulnerabilitiesList');
+            const vulnsContent = document.getElementById('vulnsContent');
+
+            showResult(resultDiv, 'Сканирование портов...', 'info');
+            if (tableContainer) tableContainer.style.display = 'none';
+            if (vulnsList) vulnsList.style.display = 'none';
+
+            try {
+                const response = await fetch(`${API_BASE}/api/scan/ports`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-API-Key': API_KEY
+                    },
+                    body: JSON.stringify({ host: host })
+                });
+
+                const data = await response.json();
+                lastPortsResult = data;
+
+                if (response.ok) {
+                    const openPorts = data.open_ports || [];
+                    const vulnerabilities = data.vulnerabilities || [];
+
+                    if (openPorts.length === 0) {
+                        showResult(resultDiv, 'Открытых портов не обнаружено', 'success');
+                        return;
+                    }
+
+                    showResult(resultDiv, `Найдено ${openPorts.length} открытых портов`, 'info');
+
+                    // Заполнение таблицы
+                    if (tableBody) {
+                        tableBody.innerHTML = '';
+                        openPorts.forEach(port => {
+                            let risk = 'Низкий';
+                            for (const vuln of vulnerabilities) {
+                                if (vuln.port === port.port) {
+                                    risk = vuln.severity?.toUpperCase() || 'Неизвестно';
+                                    break;
+                                }
+                            }
+
+                            const row = document.createElement('tr');
+                            row.innerHTML = `
+                                <td>${port.port}</td>
+                                <td>${port.service || 'Unknown'}</td>
+                                <td>${port.state}</td>
+                                <td class="risk-${port.severity || 'low'}">${risk}</td>
+                            `;
+                            tableBody.appendChild(row);
+                        });
+
+                        if (tableContainer) tableContainer.style.display = 'block';
+                    }
+
+                    // Уязвимости
+                    if (vulnerabilities.length > 0 && vulnsContent) {
+                        let html = '';
+                        vulnerabilities.forEach(vuln => {
+                            html += `
+                                <div class="vuln-item">
+                                    <div class="vuln-title">Порт ${vuln.port} (${vuln.service})</div>
+                                    <div class="vuln-desc">${vuln.description}</div>
+                                    <div style="margin-top:8px;font-size:13px;color:#7F8C8D;">
+                                        <b>Рекомендация:</b> ${vuln.recommendation}
+                                    </div>
+                                </div>
+                            `;
+                        });
+                        vulnsContent.innerHTML = html;
+                        if (vulnsList) vulnsList.style.display = 'block';
+                    }
+
+                } else {
+                    showResult(resultDiv, `Ошибка: ${data.error || 'Неизвестная ошибка'}`, 'error');
+                }
+            } catch (error) {
+                showResult(resultDiv, `Ошибка соединения: ${error.message}`, 'error');
+            }
+        }
+
+        async function generateReport(format) {
+            const target = document.getElementById('reportTarget').value.trim() || 'Информационная система ИП';
+            const resultDiv = document.getElementById('reportResult');
+
+            showResult(resultDiv, 'Формирование отчёта...', 'info');
+
+            try {
+                const response = await fetch(`${API_BASE}/api/generate/pdf-report`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-API-Key': API_KEY
+                    },
+                    body: JSON.stringify({
+                        target: target,
+                        email_check: lastEmailResult,
+                        password_analysis: lastPasswordResult,
+                        port_scan: lastPortsResult
+                    })
+                });
+
+                const data = await response.json();  // ← ВОТ ЭТО ОБЯЗАТЕЛЬНО
+
+                if (response.ok) {
+
+                    if (format === 'pdf') {
+                        showResult(resultDiv, `Отчёт сохранён: ${data.report_path}`, 'success');
+
+                        const link = document.createElement('a');
+                        link.href = `/download/${data.report_path}`;
+                        link.download = data.report_path;
+                        link.click();
+
+                } else {
+
+                    window.open(`${API_BASE}/report/${data.session_id}`, '_blank');
+                    showResult(resultDiv, 'Отчёт открыт в новой вкладке', 'success');
+                }
+
+            } else {
+                showResult(resultDiv, `Ошибка: ${data.error || 'Не удалось сгенерировать отчёт'}`, 'error');
+            }
+
+        } catch (error) {
+            showResult(resultDiv, `Ошибка соединения: ${error.message}`, 'error');
+        }
+    }
+
+
+        function showResult(element, message, type) {
+            if (!element) return;
+            element.textContent = message;
+            element.className = `result-message show ${type}`;
+
+            if (type === 'info') {
+                setTimeout(() => {
+                    element.classList.remove('show');
+                }, 5000);
+            }
+        }
+</script>
+</body>
+</html>

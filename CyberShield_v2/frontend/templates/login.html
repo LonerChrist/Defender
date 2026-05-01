@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Вход - CyberShield IE</title>
+    <link rel="icon" href="image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🛡️</text></svg>">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+</head>
+<body class="auth-page">
+    <div class="auth-container">
+        <div class="auth-card">
+            <div class="auth-header">
+                <div class="auth-logo">🛡️</div>
+                <h1>CyberShield IE</h1>
+                <p class="auth-subtitle">Вход в систему</p>
+            </div>
+
+            {% if error %}
+            <div class="alert alert-error">{{ error }}</div>
+            {% endif %}
+
+            <form method="POST" action="/login" class="auth-form">
+                <div class="form-group">
+                    <label for="email" class="form-label">Email</label>
+                    <input type="email" id="email" name="email" required
+                           placeholder="user@example.com" class="form-input"
+                           autocomplete="email">
+                </div>
+
+                <div class="form-group">
+                    <label for="password" class="form-label">Пароль</label>
+                    <input type="password" id="password" name="password" required
+                           placeholder="••••••••" class="form-input"
+                           autocomplete="current-password">
+                </div>
+
+                <div class="form-footer">
+                    <a href="/forgot-password" class="forgot-link">Забыли пароль?</a>
+                </div>
+
+                <button type="submit" class="btn btn-primary btn-full">Войти</button>
+            </form>
+
+            <div class="auth-footer">
+                <p>Нет аккаунта? <a href="/register">Зарегистрироваться</a></p>
+            </div>
+        </div>
+
+        <div class="auth-info">
+            <h2>🛡️ CyberShield для ИП</h2>
+            <p>Автоматизированная система аудита кибербезопасности</p>
+            <ul class="auth-features">
+                <li>✓ Проверка email на утечки</li>
+                <li>✓ Анализ надёжности пароля</li>
+                <li>✓ Сканирование сетевых портов</li>
+                <li>✓ Генерация PDF-отчётов</li>
+            </ul>
+        </div>
+    </div>
+</body>
+</html>

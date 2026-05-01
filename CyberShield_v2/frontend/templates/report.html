@@ -1,0 +1,417 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <body>
+    {% set email = data.get('email_check') or {} %}
+    {% set pwd = data.get('password_analysis') or {} %}
+    {% set ports = data.get('port_scan') or {} %}
+    </body>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Отчёт CyberShield</title>
+    <style>
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background: #f4f7fb;
+            color: #18212f;
+        }
+
+        .report-shell {
+            max-width: 1140px;
+            margin: 0 auto;
+            padding: 32px 20px 48px;
+        }
+
+        .report-header,
+        .report-card,
+        .finding-card,
+        .recommendation-card {
+            background: #fff;
+            border: 1px solid #dbe5f0;
+            border-radius: 18px;
+            box-shadow: 0 10px 30px rgba(15, 23, 42, 0.06);
+        }
+
+        .report-header {
+            padding: 28px;
+            margin-bottom: 24px;
+        }
+
+        .report-title {
+            margin: 0 0 8px;
+            font-size: 28px;
+            color: #123a63;
+        }
+
+        .report-subtitle {
+            margin: 0 0 6px;
+            color: #607085;
+            line-height: 1.6;
+        }
+
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px;
+            margin: 24px 0;
+        }
+
+        .stat {
+            background: #fff;
+            border: 1px solid #dbe5f0;
+            border-radius: 16px;
+            padding: 18px;
+        }
+
+        .stat-label {
+            display: block;
+            color: #607085;
+            font-size: 13px;
+            margin-bottom: 8px;
+        }
+
+        .stat-value {
+            font-size: 26px;
+            font-weight: 700;
+            color: #123a63;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 16px;
+            margin-bottom: 16px;
+        }
+
+        .report-card,
+        .finding-card,
+        .recommendation-card {
+            padding: 24px;
+        }
+
+        .report-card h2,
+        .section-title {
+            margin-top: 0;
+            color: #123a63;
+            font-size: 20px;
+        }
+
+        .subheading {
+            color: #123a63;
+            margin: 18px 0 10px;
+            font-size: 16px;
+        }
+
+        .muted {
+            color: #607085;
+            line-height: 1.6;
+        }
+
+        .list {
+            margin: 0;
+            padding-left: 18px;
+        }
+
+        .list li {
+            margin-bottom: 10px;
+            line-height: 1.55;
+        }
+
+        .empty {
+            padding: 14px 16px;
+            border-radius: 12px;
+            background: #f8fbff;
+            border: 1px dashed #c8d7e8;
+            color: #607085;
+        }
+
+        .tag {
+            display: inline-block;
+            padding: 6px 10px;
+            border-radius: 999px;
+            background: #edf4fb;
+            color: #123a63;
+            font-size: 12px;
+            margin-right: 8px;
+            margin-bottom: 8px;
+        }
+
+        .tag-danger { background: #fff0ef; color: #b5473e; }
+        .tag-warning { background: #fff8eb; color: #b7791f; }
+        .tag-success { background: #eefbf2; color: #24714b; }
+
+        .table {
+            width: 100%;
+            border-collapse: collapse;
+            table-layout: fixed;
+        }
+
+        .table th,
+        .table td {
+            text-align: left;
+            padding: 10px 12px;
+            border-bottom: 1px solid #e6edf5;
+            font-size: 14px;
+            vertical-align: top;
+            overflow-wrap: anywhere;
+            word-break: break-word;
+        }
+
+        .table th {
+            color: #607085;
+            font-weight: 600;
+        }
+
+        .section {
+            margin-top: 20px;
+        }
+
+        .finding-list,
+        .recommendation-list {
+            display: grid;
+            gap: 16px;
+        }
+
+        .finding-title,
+        .recommendation-title {
+            margin: 0 0 10px;
+            color: #123a63;
+            font-size: 18px;
+        }
+
+        .meta-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-bottom: 12px;
+        }
+
+        .field {
+            margin-bottom: 12px;
+        }
+
+        .field-label {
+            display: block;
+            font-size: 13px;
+            font-weight: 700;
+            color: #123a63;
+            margin-bottom: 4px;
+        }
+
+        .field-value {
+            color: #243447;
+            line-height: 1.6;
+        }
+    </style>
+</head>
+<body>
+    <div class="report-shell">
+        <header class="report-header">
+            <h1 class="report-title">Отчёт по аудиту безопасности</h1>
+            <p class="report-subtitle">Цель проверки: {{ data.get('target', 'Информационная система ИП') }}</p>
+            <p class="report-subtitle">Дата формирования: {{ data.get('generated_at', '—') }}</p>
+            <p class="report-subtitle">Структура отчёта: сводка, результаты проверок, реестр рисков и оценочный блок</p>
+            {% if data.get('executive_summary') %}
+                <p class="report-subtitle">{{ data.get('executive_summary') }}</p>
+            {% endif %}
+        </header>
+
+        <section class="stats">
+            <div class="stat">
+                <span class="stat-label">Общий балл</span>
+                <div class="stat-value">{{ data.get('overall_score', 0) }}/100</div>
+            </div>
+            <div class="stat">
+                <span class="stat-label">Критические проблемы</span>
+                <div class="stat-value">{{ data.get('critical_count', 0) }}</div>
+            </div>
+            <div class="stat">
+                <span class="stat-label">Предупреждения</span>
+                <div class="stat-value">{{ data.get('warning_count', 0) }}</div>
+            </div>
+            <div class="stat">
+                <span class="stat-label">Уровень риска</span>
+                <div class="stat-value">{{ data.get('insurance_profile', {}).get('overall_risk', '—') }}</div>
+            </div>
+        </section>
+
+        <section class="grid">
+            <article class="report-card">
+                <h2>Краткий вывод для страховой оценки</h2>
+                {% set insurance = data.get('insurance_profile', {}) %}
+                {% if insurance %}
+                    <div class="tag">Андеррайтинг: {{ insurance.get('underwriting_posture', '—') }}</div>
+                    <div class="tag">Объект: {{ insurance.get('target', '—') }}</div>
+                    <p class="muted">{{ insurance.get('assessment_basis', '') }}</p>
+
+                    {% if insurance.get('negative_factors') %}
+                        <h3 class="subheading">Факторы риска</h3>
+                        <ul class="list">
+                            {% for item in insurance.get('negative_factors', []) %}
+                                <li>{{ item }}</li>
+                            {% endfor %}
+                        </ul>
+                    {% endif %}
+
+                    {% if insurance.get('positive_factors') %}
+                        <h3 class="subheading">Сдерживающие факторы</h3>
+                        <ul class="list">
+                            {% for item in insurance.get('positive_factors', []) %}
+                                <li>{{ item }}</li>
+                            {% endfor %}
+                        </ul>
+                    {% endif %}
+
+                    <p class="muted">{{ insurance.get('residual_risk_note', '') }}</p>
+                {% else %}
+                    <div class="empty">Блок для страховой оценки пока не сформирован.</div>
+                {% endif %}
+            </article>
+
+            <article class="report-card">
+                <h2>Что именно было проверено</h2>
+                {% set email = data.get('email_check', {}) %}
+                {% set pwd = data.get('password_analysis', {}) %}
+                {% set ports = data.get('port_scan', {}) %}
+                <div class="tag">Email: {% if email %}да{% else %}нет{% endif %}</div>
+                <div class="tag">Пароль: {% if pwd %}да{% else %}нет{% endif %}</div>
+                <div class="tag">Порты: {% if ports %}да{% else %}нет{% endif %}</div>
+
+                <h3 class="subheading">Сводка по проверкам</h3>
+                <ul class="list">
+                    <li>Email: {% if email.get('breaches_count', 0) > 0 %}обнаружены утечки ({{ email.get('breaches_count', 0) }}){% elif email %}утечки не найдены{% else %}не включён в отчёт{% endif %}</li>
+                    <li>Пароль: {% if pwd %}оценка {{ pwd.get('score', 0) }}/100, уровень {{ pwd.get('strength', pwd.get('ml_risk', {}).get('level', 'unknown')) }}{% else %}не включён в отчёт{% endif %}</li>
+                    <li>Порты: {% if ports %}открытых портов {{ ports.get('open_ports', [])|length }}, замечаний {{ ports.get('vulnerabilities', [])|length }}{% else %}не включены в отчёт{% endif %}</li>
+                </ul>
+            </article>
+        </section>
+        {% if email.get('breaches') %}
+            <div class="report-card" style="margin-top:20px;">
+                <h2>Обнаруженные утечки email</h2>
+
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Сервис</th>
+                            <th>Дата</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for breach in email.get('breaches', []) %}
+                            <tr>
+                                <td>{{ breach.get('name', 'Unknown') }}</td>
+                                <td>{{ breach.get('date', '—') }}</td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% endif %}
+
+        <section class="section report-card">
+            <h2>Реестр выявленных рисков</h2>
+            {% if data.get('findings') %}
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Приоритет</th>
+                            <th>Категория</th>
+                            <th>Риск</th>
+                            <th>Актив / область</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for finding in data.get('findings', []) %}
+                            <tr>
+                                <td>{{ finding.get('severity_label', '—') }}</td>
+                                <td>{{ finding.get('category', '—') }}</td>
+                                <td>{{ finding.get('title', '—') }}</td>
+                                <td>{{ finding.get('asset', '—') }}</td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            {% else %}
+                <div class="empty">Выраженные риски по выбранным проверкам не обнаружены.</div>
+            {% endif %}
+        </section>
+
+        <section class="section">
+            <h2 class="section-title">Подробное описание рисков</h2>
+            {% if data.get('findings') %}
+                <div class="finding-list">
+                    {% for finding in data.get('findings', []) %}
+                        <article class="finding-card">
+                            <h3 class="finding-title">{{ loop.index }}. {{ finding.get('title', 'Риск') }}</h3>
+                            <div class="meta-row">
+                                <span class="tag {% if finding.get('severity') in ['critical', 'high'] %}tag-danger{% elif finding.get('severity') == 'medium' %}tag-warning{% else %}tag-success{% endif %}">{{ finding.get('severity_label', '—') }}</span>
+                                <span class="tag">{{ finding.get('category', '—') }}</span>
+                                <span class="tag">{{ finding.get('asset', '—') }}</span>
+                            </div>
+
+                            <div class="field">
+                                <span class="field-label">Суть уязвимости / риска</span>
+                                <div class="field-value">{{ finding.get('description', '—') }}</div>
+                            </div>
+                            <div class="field">
+                                <span class="field-label">Возможный вектор атаки</span>
+                                <div class="field-value">{{ finding.get('attack_vector', '—') }}</div>
+                            </div>
+                            <div class="field">
+                                <span class="field-label">Как это может повлиять на бизнес</span>
+                                <div class="field-value">{{ finding.get('business_impact', '—') }}</div>
+                            </div>
+                            <div class="field">
+                                <span class="field-label">Пояснение простыми словами</span>
+                                <div class="field-value">{{ finding.get('user_guidance', '—') }}</div>
+                            </div>
+                            <div class="field">
+                                <span class="field-label">Почему это важно для страховой компании</span>
+                                <div class="field-value">{{ finding.get('insurer_relevance', '—') }}</div>
+                            </div>
+                        </article>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <div class="empty">Подробные карточки рисков не требуются, потому что значимые замечания не выявлены.</div>
+            {% endif %}
+        </section>
+
+        <section class="section">
+            <h2 class="section-title">План корректирующих мер</h2>
+            {% if data.get('recommendations') %}
+                <div class="recommendation-list">
+                    {% for recommendation in data.get('recommendations', []) %}
+                        <article class="recommendation-card">
+                            <h3 class="recommendation-title">{{ loop.index }}. {{ recommendation.get('title', 'Рекомендация') }}</h3>
+                            <div class="meta-row">
+                                <span class="tag">{{ recommendation.get('priority', 'Плановый приоритет') }}</span>
+                                <span class="tag">{{ recommendation.get('category', 'Общее') }}</span>
+                            </div>
+                            <div class="field">
+                                <span class="field-label">Что нужно сделать</span>
+                                <div class="field-value">{{ recommendation.get('description', '—') }}</div>
+                            </div>
+                            <div class="field">
+                                <span class="field-label">Почему это важно</span>
+                                <div class="field-value">{{ recommendation.get('rationale', '—') }}</div>
+                            </div>
+                            <div class="field">
+                                <span class="field-label">Какой риск это снизит</span>
+                                <div class="field-value">{{ recommendation.get('business_effect', '—') }}</div>
+                            </div>
+                            <div class="field">
+                                <span class="field-label">Как действовать простыми словами</span>
+                                <div class="field-value">{{ recommendation.get('for_non_technical_user', '—') }}</div>
+                            </div>
+                        </article>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <div class="empty">Рекомендации пока отсутствуют.</div>
+            {% endif %}
+        </section>
+    </div>
+</body>
+</html>
